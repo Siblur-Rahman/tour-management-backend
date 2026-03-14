@@ -1,23 +1,59 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status-codes"
 import { userServices } from "./user.service";
-// import AppError from "../../errorHelpers/AppError";
+import { catchAsync } from "../../utils/catchAsync";
 
 const createUser = async(req: Request, res: Response, next: NextFunction) =>{
     try {
-        // throw new AppError(httpStatus.BAD_REQUEST, "fake error")
         const user = await userServices.createUser(req.body)
         res.status(httpStatus.CREATED).json({
             message: "User Created Successfuly",
             user
         })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
         console.log(err);
         next(err)
     }
 }
 
+// const createUser = catchAsync(async(req: Request, res: Response, next: NextFunction) =>{
+    
+//         const user = await userServices.createUser(req.body);
+
+//         res.status(httpStatus.CREATED).json({
+//             message: "User Created Successfuly",
+//             user
+//         })
+// })
+
+const getAllUsers = catchAsync( async (req: Request, res: Response, next: NextFunction) =>{
+       
+            const users = await userServices.getAllUsers();
+            
+            res.status(httpStatus.OK).json({
+                success: true,
+                message: "All Users Retrieved Successfully",
+                data: users
+            })
+       
+})
+
+// const getAllUsers = async (req: Request, res: Response, next: NextFunction) =>{
+//         try {
+//             const users = await userServices.getAllUsers();
+//             res.status(httpStatus.OK).json({
+//                 success: true,
+//                 message: "All Users Retrieved Successfully",
+//                 data: users
+//             })
+//         } catch (err: any) {
+//         console.log(err);
+//         next(err)
+//     }
+// }
 export const UserControllers = {
-    createUser
+    createUser,
+    getAllUsers
 }
