@@ -1,13 +1,9 @@
-import { NextFunction, Request, Response } from "express";
 import { Router } from "express";
 import { UserControllers } from "./user.controller";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import AppError from "../../errorHelpers/AppError";
+import { checkAuth } from "../../middlewares/checkAuth";
 import { Role } from "./user.interface";
-import { verifyToken } from "../../utils/jwt";
-import { envVars } from "../../config/env";
-// import { createUserZodSchema } from "./user.validation";
-// import { validateRequest } from "../../middlewares/validateRequest";
+import { createUserZodSchema } from "./user.validation";
+import { validateRequest } from "../../middlewares/validateRequest";
 
 
 
@@ -15,49 +11,15 @@ import { envVars } from "../../config/env";
 
 const router = Router()
 
-const checkAuth = (...authes: string[]) =>  async (req: Request, res: Response, next: NextFunction)=>{
-   try {
-     const accessToken = req.headers.authorization;
-     if(!accessToken){
-        throw new AppError(403, "No Token Recieved")
-     }
-     
-     const verifiedToken = verifyToken(accessToken, envVars.JWT_ACCESS_SECRET)
-   //   const verifiedToken = jwt.verify(accessToken, "secret")
-     
-     if((verifiedToken as JwtPayload ).role !== Role.ADMIN){
-        throw new AppError(403, "You are not permited to view this route")
-     }
-    next()
-   } catch (err) {
-    next(err)
-   }
-};
+
 
 router.post("/register", 
-    // validateRequest(createUserZodSchema), 
+    validateRequest(createUserZodSchema), 
     UserControllers.createUser);
 
 router.get("/all-users", 
-//    async (req: Request, res: Response, next: NextFunction)=>{
-//    try {
-//      const accessToken = req.headers.authorization;
-//      if(!accessToken){
-//         throw new AppError(403, "No Token Recieved")
-//      }
-     
-//      const verifiedToken = verifyToken(accessToken, envVars.JWT_ACCESS_SECRET)
-//    //   const verifiedToken = jwt.verify(accessToken, "secret")
-     
-//      if((verifiedToken as JwtPayload ).role !== Role.ADMIN){
-//         throw new AppError(403, "You are not permited to view this route")
-//      }
-//     next()
-//    } catch (err) {
-//     next(err)
-//    }
-// }, 
-checkAuth,
+
+checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
 UserControllers.getAllUsers)
 
 export const UserRoutes = router
