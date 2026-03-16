@@ -4,6 +4,8 @@ import { UserControllers } from "./user.controller";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import AppError from "../../errorHelpers/AppError";
 import { Role } from "./user.interface";
+import { verifyToken } from "../../utils/jwt";
+import { envVars } from "../../config/env";
 // import { createUserZodSchema } from "./user.validation";
 // import { validateRequest } from "../../middlewares/validateRequest";
 
@@ -13,26 +15,49 @@ import { Role } from "./user.interface";
 
 const router = Router()
 
-router.post("/register", 
-    // validateRequest(createUserZodSchema), 
-    UserControllers.createUser);
-
-router.get("/all-users", async (req: Request, res: Response, next: NextFunction)=>{
+const checkAuth = (...authes: string[]) =>  async (req: Request, res: Response, next: NextFunction)=>{
    try {
      const accessToken = req.headers.authorization;
      if(!accessToken){
         throw new AppError(403, "No Token Recieved")
      }
      
-     const veryfiedToken = jwt.verify(accessToken, "secret")
+     const verifiedToken = verifyToken(accessToken, envVars.JWT_ACCESS_SECRET)
+   //   const verifiedToken = jwt.verify(accessToken, "secret")
      
-     if((veryfiedToken as JwtPayload ).role !== Role.ADMIN){
+     if((verifiedToken as JwtPayload ).role !== Role.ADMIN){
         throw new AppError(403, "You are not permited to view this route")
      }
     next()
    } catch (err) {
     next(err)
    }
-}, UserControllers.getAllUsers)
+};
+
+router.post("/register", 
+    // validateRequest(createUserZodSchema), 
+    UserControllers.createUser);
+
+router.get("/all-users", 
+//    async (req: Request, res: Response, next: NextFunction)=>{
+//    try {
+//      const accessToken = req.headers.authorization;
+//      if(!accessToken){
+//         throw new AppError(403, "No Token Recieved")
+//      }
+     
+//      const verifiedToken = verifyToken(accessToken, envVars.JWT_ACCESS_SECRET)
+//    //   const verifiedToken = jwt.verify(accessToken, "secret")
+     
+//      if((verifiedToken as JwtPayload ).role !== Role.ADMIN){
+//         throw new AppError(403, "You are not permited to view this route")
+//      }
+//     next()
+//    } catch (err) {
+//     next(err)
+//    }
+// }, 
+checkAuth,
+UserControllers.getAllUsers)
 
 export const UserRoutes = router
