@@ -4,12 +4,18 @@ export enum Role {
     SUPER_ADMIN = "SUPER_ADMIN",
     ADMIN = "ADMIN",
     USER = "USER",
-    GUIDE = "GUIDE"
+    GUIDE = "GUIDE",
 }
 
-export interface IAuthProvider{
-    provider: string;
-    provderId: string
+//auth providers
+/**
+ * email, password 
+ * google authentication
+ */
+
+export interface IAuthProvider {
+    provider: "google" | "credentials";  // "Google", "Credential"
+    providerId: string;
 }
 
 export enum IsActive {
@@ -18,19 +24,21 @@ export enum IsActive {
     BLOCKED = "BLOCKED"
 }
 
-export interface IUser{
+export interface IUser {
+    _id?: Types.ObjectId
     name: string;
     email: string;
-    password ?: string;
-    phone ?: string;
-    picture ?: string;
-    address ?: string;
-    isDeleted ? : string;
-    isActive ?: IsActive;
-    isVerified ?: string;
-    role: Role
-    auts: IAuthProvider[];
-    booking ?: Types.ObjectId[];
-    guides ?: Types.ObjectId[]
-    
+    password?: string;
+    phone?: string;
+    picture?: string;
+    address?: string;
+    isDeleted?: string;
+    isActive?: IsActive;
+    isVerified?: boolean;
+    role: Role;
+    auths: IAuthProvider[];
+    bookings?: Types.ObjectId[];
+    guides?: Types.ObjectId[];
+    createdAt?: Date
+
 }
