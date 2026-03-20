@@ -29,9 +29,17 @@ const credentialsLogin = async (payload: Partial<IUser>) =>{
     }
 
     const accessToken = generateToken(jwtPayload, envVars.JWT_ACCESS_SECRET, envVars.JWT_ACCESS_EXPIRES)
+
+    const refressToken = generateToken(payload, envVars.JWT_REFRESH_SECRET, envVars.JWT_REFRESH_EXPIRES)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const {password : pass, ...rest} = isUserExit
+
+    // delete isUserExit.password // for remove password field from data
     return {
         // email: isUserExit.email
-        accessToken
+        accessToken,
+        refressToken,
+        user: rest
     } 
 }
 
