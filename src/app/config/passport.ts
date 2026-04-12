@@ -4,6 +4,31 @@ import { Strategy as GoogleStrategy, Profile, VerifyCallback } from "passport-go
 import { envVars } from "./env";
 import { User } from "../modules/user/user.model";
 import { Role } from "../modules/user/user.interface";
+import { Strategy as LocalStrategy } from "passport-local";
+import bcryptjs from "bcryptjs"
+
+passport.use(
+    new LocalStrategy({
+        usernameField: "email",
+        passwordField: "password"
+    }, async (email: string, password: string, done: VerifyCallback)=>{
+        try {
+    const isUserExit = await User.findOne({email})
+             if(!isUserExit){
+        return done(null, false, {message: "User does not exits"})
+    }
+    const isPasswordMatched = await bcryptjs.compare(password as string, isUserExit.password as string)
+    
+        if(!isPasswordMatched){
+            return done(null, false, {message: "Password does not matched"})
+        }
+
+        return done(null, isUserExit)
+        } catch (error) {
+            console.log(error);
+        }
+    })
+)
 
 passport.use(
     new GoogleStrategy(
